@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd
+            ">
+
+    <import resource="classpath:META-INF/spring/activemq-camel-client.xml"/>
+
+    <!--               -->
+    <!-- CAMEL CONTEXT -->
+    <!--               -->
+    <camelContext id="Generic_camelContext" streamCache="true"
+                  xmlns="http://camel.apache.org/schema/spring"/>
+
+    <!--           -->
+    <!-- UTILITIES -->
+    <!--           -->
+    <bean id="xmlDataTypeFactory" class="javax.xml.datatype.DatatypeFactory"
+          factory-method="newInstance"/>
+
+
+    <!--                -->
+    <!-- ROUTE BUILDERS -->
+    <!--                -->
+
+    <!-- MAIN ROUTE -->
+    <bean class="com.artnaseef.routes.ApplicationMainRouteBuilder">
+        <property name="errorNotificationJmsDestination" value="error-queue"/>
+        <property name="requestJmsDestination" value="request.in"/>
+    </bean>
+</beans>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:cxf="http://camel.apache.org/schema/cxf"
+       xmlns:jaxrs="http://cxf.apache.org/jaxrs"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://camel.apache.org/schema/cxf
+            http://camel.apache.org/schema/cxf/camel-cxf.xsd
+            http://cxf.apache.org/jaxrs
+            http://cxf.apache.org/schemas/jaxrs.xsd
+            http://camel.apache.org/schema/spring
+            http://camel.apache.org/schema/spring/camel-spring.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd">
+
+
+    <!--          -->
+    <!-- ACTIVEMQ -->
+    <!--          -->
+
+    <!--                                 -->
+    <!-- LOWEST LEVEL CONNECTION FACTORY -->
+    <!--                                 -->
+    <bean id="directJmsConnectionFactory" class="org.apache.activemq.ActiveMQConnectionFactory">
+        <property name="brokerURL" value="${jms.broker.url}"/>
+        <property name="userName" value="${jms.broker.username}"/>
+        <property name="password" value="${jms.broker.password}"/>
+    </bean>
+
+    <!--                           -->
+    <!-- POOLED CONNECTION FACTORY -->
+    <!--                           -->
+    <bean id="pooledArtemisConnectionFactory"
+          class="org.apache.activemq.jms.pool.PooledConnectionFactory">
+        <property name="connectionFactory" ref="directJmsConnectionFactory"/>
+        <property name="maxConnections" value="${jms.broker.maxProducerConnections:3}"/>
+        <property name="maximumActiveSessionPerConnection"
+                  value="${jms.broker.maxActiveSessionsPerConnection:500}"/>
+    </bean>
+
+    <!--                  -->
+    <!-- CAMEL COMPONENTS -->
+    <!--                  -->
+    <!-- Pooling for producers -->
+    <bean id="jms-out" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="pooledArtemisConnectionFactory"/>
+    </bean>
+
+    <!-- No pooling for consumers - just don't do it! -->
+    <bean id="jms-in" class="org.apache.camel.component.jms.JmsComponent">
+        <property name="connectionFactory" ref="directJmsConnectionFactory"/>
+        <property name="preserveMessageQos" value="true"/>
+    </bean>
+</beans>
